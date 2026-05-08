@@ -1,0 +1,203 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "L'Aurore",
+      "price": 120000,
+      "category": "MARIAGE",
+      "image": "/photo 3.jpg",
+      "description": "Un bouquet élégant pour un jour inoubliable."
+    },
+    {
+      "id": "2",
+      "name": "Minuit à Paris",
+      "price": 155000,
+      "category": "ANNIVERSAIRE",
+      "image": "/photo 6.jpg",
+      "description": "Une composition mystérieuse et sophistiquée."
+    },
+    {
+      "id": "3",
+      "name": "Rêve Blanc",
+      "price": 105000,
+      "category": "MARIAGE",
+      "image": "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&q=80&w=800",
+      "description": "Pureté et grâce dans ce bouquet de fleurs blanches."
+    },
+    {
+      "id": "4",
+      "name": "Éclat Royal",
+      "price": 210000,
+      "category": "DÉCORATION",
+      "image": "https://images.unsplash.com/photo-1518133835878-5a93cc3f89e5?auto=format&fit=crop&q=80&w=800",
+      "description": "Une pièce maîtresse luxueuse pour votre intérieur."
+    },
+    {
+      "id": "5",
+      "name": "Amour Éternel",
+      "price": 125000,
+      "category": "SAINT-VALENTIN",
+      "image": "/photo .9jpg.jpg",
+      "description": "Le symbole ultime de la passion."
+    },
+    {
+      "id": "6",
+      "name": "Premier Sourire",
+      "price": 95000,
+      "category": "NAISSANCE",
+      "image": "https://images.unsplash.com/photo-1591873386927-ddf4b45a5c1d?auto=format&fit=crop&q=80&w=800",
+      "description": "Douceur et tendresse pour célébrer une nouvelle vie."
+    },
+    {
+      "id": "7",
+      "name": "Hommage Paisible",
+      "price": 135000,
+      "category": "DEUIL",
+      "image": "/photo 2.jpg",
+      "description": "Une présence réconfortante et respectueuse."
+    },
+    {
+      "id": "8",
+      "name": "Jardin Intérieur",
+      "price": 185000,
+      "category": "DÉCORATION",
+      "image": "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&q=80&w=800",
+      "description": "Apportez la fraîcheur du jardin dans votre maison."
+    },
+    {
+      "id": "orn-1",
+      "name": "Vase en Cristal d'Arques",
+      "price": 125000,
+      "category": "ORNEMENTS",
+      "image": "https://images.unsplash.com/photo-1581783898377-1c85bf937427?auto=format&fit=crop&q=80&w=800",
+      "description": "Un vase d'exception pour sublimer vos compositions les plus prestigieuses."
+    }
+  ],
+  "services": [
+    {
+      "id": "deco",
+      "title": "Décoration & Design Intérieur",
+      "category": "Intérieur",
+      "description": "Sublimez vos espaces de vie avec nos créations florales permanentes ou éphémérées.",
+      "items": [
+        "Aménagement paysager",
+        "Design floral résidentiel",
+        "Signalétique végétale"
+      ],
+      "image": "/lustre fleur-1.JPG"
+    },
+    {
+      "id": "mortuaire",
+      "title": "Décoration Mortuaire",
+      "category": "Cérémonie",
+      "description": "Un hommage d'une infinie douceur pour accompagner vos proches avec dignité.",
+      "items": [
+        "Coussins deuil",
+        "Cœurs floraux",
+        "Dessus de cercueil"
+      ],
+      "image": "/photo 8.jpg"
+    },
+    {
+      "id": "africaine",
+      "title": "Décoration Africaine",
+      "category": "Culture",
+      "description": "L'art floral revisité à travers les richesses et les couleurs du continent africain.",
+      "items": [
+        "Compositions exotiques",
+        "Éléments naturels sculptés",
+        "Tissages floraux"
+      ],
+      "image": "/mariage traditionnel.JPG"
+    },
+    {
+      "id": "art",
+      "title": "Art Floral & Confection",
+      "category": "Sur Mesure",
+      "description": "L'expression de notre savoir-faire dans chaque tige sélectionnée avec soin.",
+      "items": [
+        "Bouquets personnalisés",
+        "Fleurs séchées",
+        "Atelier de séchage"
+      ],
+      "image": "/formation.jpg"
+    },
+    {
+      "id": "logistique",
+      "title": "Logistique & Location",
+      "category": "Événementiel",
+      "description": "Les structures essentielles pour vos réceptions de prestige.",
+      "items": [
+        "Location de bâches",
+        "Mobilier événementiel",
+        "Accessoires de réception"
+      ],
+      "image": "/photo 13.jpg"
+    }
+  ],
+  "collections": [
+    {
+      "id": "1",
+      "title": "Le Mariage",
+      "subtitle": "Couture Nuptiale",
+      "description": "Une célébration de l'amour à travers des compositions aériennes et romantiques.",
+      "image": "/mari2-1.jpg"
+    },
+    {
+      "id": "2",
+      "title": "Anniversaire",
+      "subtitle": "L'Art de Célébrer",
+      "description": "Marquez le passage du temps avec audace. Des bouquets vibrants et généreux.",
+      "image": "/bouquet argent.jpg"
+    },
+    {
+      "id": "3",
+      "title": "Saint-Valentin",
+      "subtitle": "Passion Florale",
+      "description": "L'expression ultime des sentiments. Des collections passionnées.",
+      "image": "/bouquet love.jpg"
+    },
+    {
+      "id": "4",
+      "title": "Naissance",
+      "subtitle": "Douce Éclosion",
+      "description": "Des teintes tendres et des textures délicates pour célébrer une nouvelle vie.",
+      "image": "/photo 10.jpg"
+    },
+    {
+      "id": "5",
+      "title": "Deuil",
+      "subtitle": "Hommage Paisible",
+      "description": "La grâce et la sérénité pour accompagner les derniers adieux.",
+      "image": "/photo 8.jpg"
+    },
+    {
+      "id": "6",
+      "title": "Réception",
+      "subtitle": "Design Prestige",
+      "description": "Scénographies florales pour vos événements d'exception.",
+      "image": "/photo 13.jpg"
+    }
+  ],
+  "formations": [
+    {
+      "id": "1",
+      "title": "Art du Bouquet Rond",
+      "description": "Maîtrisez la technique de la spirale pour des bouquets parfaits.",
+      "price": 75000,
+      "image": "/formation.jpg"
+    },
+    {
+      "id": "2",
+      "title": "Design Événementiel",
+      "description": "Apprenez à concevoir des décors floraux pour les grandes réceptions.",
+      "price": 150000,
+      "image": "/formation 2.jpg"
+    }
+  ],
+  "quotes": [],
+  "admin": {
+    "username": "admin",
+    "password": "•••••••••"
+  }
+}

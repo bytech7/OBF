@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Outfit:wght@200;300;400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Outfit", sans-serif;
+  
+  --color-luxury-beige: #F9F7F2;
+  --color-luxury-paper: #F1EDE6;
+  --color-luxury-border: #DEDAD1;
+  --color-luxury-ink: #1A1A1A;
+  --color-luxury-gold: #A68A56; /* Slightly darker for better accessibility contrast */
+  --color-luxury-muted: #5A5652;
+  --color-luxury-soft: #7A7570;
+  --color-luxury-green: #242F28;
+
+  --breakpoint-xs: 480px;
+  --breakpoint-xxl: 1440px;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-luxury-beige text-luxury-ink font-sans selection:bg-luxury-gold selection:text-white leading-relaxed;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-normal tracking-tight;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-luxury-beige);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1cfca;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-luxury-gold);
+}
+
+/* Luxury animations */
+.parallax-bg {
+  transform: translateY(var(--parallax-offset, 0));
+  will-change: transform;
+}
