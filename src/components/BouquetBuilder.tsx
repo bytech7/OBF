@@ -1,21 +1,67 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { api } from "../services/api";
 
-const steps = [
-  { id: 1, name: "Palette", options: ["Pastels Doux", "Blanc Monochromatique", "Coucher de Soleil Vibrant", "Vert Forêt Profond"] },
-  { id: 2, name: "Profil Olfactif", options: ["Agrumes & Frais", "Chaud & Musqué", "Rose Classique", "Fleurs Sauvages"] },
-  { id: 3, name: "Occasion", options: ["Cadeau Romantique", "Cérémonie Solennelle", "Gala d'Entreprise", "Soirée Intime"] },
-];
+interface StepOption {
+  name: string;
+  price?: number;
+}
+
+interface Step {
+  id: number;
+  name: string;
+  options: StepOption[];
+}
+
+interface BouquetConfig {
+  pricingType: "fixed" | "variable";
+  price: number;
+  steps: Step[];
+}
 
 export default function BouquetBuilder() {
+  const [bouquetConfig, setBouquetConfig] = useState<BouquetConfig | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
-  const [selections, setSelections] = useState<string[]>([]);
+  const [selections, setSelections] = useState<StepOption[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const { addToCart } = useCart();
 
-  const handleSelect = (option: string) => {
+  useEffect(() => {
+    api.getBouquetConfig()
+      .then(config => {
+        if (config && config.steps) {
+          // Normalize options to objects if they come as strings
+          const sanitizedSteps = config.steps.map((step: any) => ({
+            ...step,
+            options: step.options.map((opt: any) => typeof opt === 'string' ? { name: opt, price: 0 } : opt)
+          }));
+          setBouquetConfig({ ...config, steps: sanitizedSteps });
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load bouquet config", err);
+      });
+  }, []);
+ 
+  if (!bouquetConfig || bouquetConfig.steps.length === 0) return null;
+
+  const steps = bouquetConfig.steps;
+
+  const currentTotalPrice = () => {
+    if (bouquetConfig.pricingType === "fixed") return bouquetConfig.price;
+    
+    let total = bouquetConfig.price;
+    selections.forEach((sel, idx) => {
+      if (idx < 2 && sel && sel.price) {
+        total += sel.price;
+      }
+    });
+    return total;
+  };
+
+  const handleSelect = (option: StepOption) => {
     const newSelections = [...selections];
     newSelections[currentStep] = option;
     setSelections(newSelections);
@@ -26,13 +72,16 @@ export default function BouquetBuilder() {
   };
 
   const handleAddToCart = () => {
+    const finalPriceVal = currentTotalPrice();
+    const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(finalPriceVal);
+
     const customBouquet = {
       id: `custom-${Date.now()}`,
-      name: `Création Sur Mesure: ${selections[0]}`,
-      price: "210 €", // Fixed price for custom creations
+      name: `Création Sur Mesure: ${selections[0]?.name}`,
+      price: formattedPrice, 
       category: "Atelier Sur Mesure",
       image: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&q=80&w=800",
-      details: selections.join(", ")
+      details: selections.map(s => s.name).join(", ")
     };
     addToCart(customBouquet);
     setIsFinished(true);
@@ -87,6 +136,10 @@ export default function BouquetBuilder() {
                 <div>
                   <h3 className="text-lg xs:text-xl font-serif text-luxury-ink">Atelier Sur Mesure</h3>
                   <p className="text-[9px] uppercase tracking-[0.2em] text-luxury-ink/40">Composition Personnalisée</p>
+                  <p className="text-[10px] font-bold text-luxury-gold mt-1">
+                    {bouquetConfig.pricingType === "fixed" ? "Total Fixe: " : "Total Estimé: "}
+                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(currentTotalPrice())}
+                  </p>
                 </div>
               </div>
 
@@ -119,17 +172,24 @@ export default function BouquetBuilder() {
                     </h4>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xs:gap-4">
-                      {steps[currentStep].options.map((option) => (
+                      {steps[currentStep].options.map((option: any) => (
                         <button
-                          key={option}
+                          key={option.name}
                           onClick={() => handleSelect(option)}
-                          className={`px-4 xs:px-6 py-3 xs:py-4 rounded-full text-left text-[10px] xs:text-xs uppercase tracking-[0.1em] transition-all duration-500 border ${
-                            selections[currentStep] === option
+                          className={`px-4 xs:px-6 py-3 xs:py-4 rounded-full text-left transition-all duration-500 border flex flex-col justify-center ${
+                            selections[currentStep]?.name === option.name
                               ? "bg-luxury-ink text-white border-luxury-ink"
                               : "bg-transparent text-luxury-ink/60 border-luxury-beige hover:border-luxury-gold/40"
                           }`}
                         >
-                          {option}
+                          <span className="text-[10px] xs:text-xs uppercase tracking-[0.1em]">
+                            {option.name}
+                          </span>
+                          {bouquetConfig.pricingType === "variable" && currentStep < 2 && option.price > 0 && (
+                            <span className={`text-[8px] font-bold mt-1 ${selections[currentStep]?.name === option.name ? "text-luxury-gold" : "text-luxury-muted"}`}>
+                              +{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(option.price)}
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -195,7 +255,7 @@ export default function BouquetBuilder() {
                   <div>
                     <h5 className="text-[11px] xs:text-sm font-medium uppercase tracking-widest text-luxury-ink/80">{step.name}</h5>
                     <p className="text-[9px] xs:text-[10px] text-luxury-ink/40">
-                      {selections[idx] || "En attente de choix..."}
+                      {selections[idx]?.name || "En attente de choix..."}
                     </p>
                   </div>
                 </div>

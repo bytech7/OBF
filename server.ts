@@ -187,6 +187,38 @@ const initialDB = {
       image: "https://images.unsplash.com/photo-1533907650686-70576141c030?auto=format&fit=crop&q=80&w=800"
     }
   ],
+  reviews: [
+    {
+      id: "1",
+      customerName: "Marie N.",
+      rating: 5,
+      comment: "Des bouquets d'une élégance rare. La livraison à Douala a été impeccable.",
+      date: "2024-03-15"
+    },
+    {
+      id: "2",
+      customerName: "Jean-Pierre E.",
+      rating: 5,
+      comment: "Le service atelier sur mesure est incroyable. On sent la passion des artisans.",
+      date: "2024-03-20"
+    },
+    {
+      id: "3",
+      customerName: "Sophie T.",
+      rating: 4,
+      comment: "Magnifique décoration pour mon mariage. Merci à toute l'équipe.",
+      date: "2024-04-02"
+    }
+  ],
+  bouquetConfig: {
+    pricingType: "fixed",
+    price: 137000,
+    steps: [
+      { id: 1, name: "Palette", options: [{ name: "Pastels Doux", price: 0 }, { name: "Blanc Monochromatique", price: 0 }, { name: "Coucher de Soleil Vibrant", price: 15000 }, { name: "Vert Forêt Profond", price: 10000 }] },
+      { id: 2, name: "Profil Olfactif", options: [{ name: "Agrumes & Frais", price: 0 }, { name: "Chaud & Musqué", price: 5000 }, { name: "Rose Classique", price: 8000 }, { name: "Fleurs Sauvages", price: 0 }] },
+      { id: 3, name: "Occasion", options: [{ name: "Cadeau Romantique", price: 0 }, { name: "Cérémonie Solennelle", price: 0 }, { name: "Gala d'Entreprise", price: 0 }, { name: "Soirée Intime", price: 0 }] },
+    ]
+  },
   quotes: [],
   admin: {
     username: "admin",
@@ -197,7 +229,17 @@ const initialDB = {
 async function readDB() {
   try {
     const data = await fs.readFile(DB_PATH, "utf-8");
-    return JSON.parse(data);
+    const db = JSON.parse(data);
+    // Ensure all initial keys exist
+    let changed = false;
+    for (const key in initialDB) {
+      if (!(key in db)) {
+        db[key] = (initialDB as any)[key];
+        changed = true;
+      }
+    }
+    if (changed) await writeDB(db);
+    return db;
   } catch (error) {
     await fs.writeFile(DB_PATH, JSON.stringify(initialDB, null, 2));
     return initialDB;
@@ -269,11 +311,11 @@ async function startServer() {
   });
 
   // Similarly for Services, Collections, Formations
-  const entities = ["services", "collections", "formations", "quotes"];
+  const entities = ["services", "collections", "formations", "quotes", "reviews"];
   entities.forEach(entity => {
     app.get(`/api/${entity}`, async (req, res) => {
       const db = await readDB();
-      res.json(db[entity]);
+      res.json(db[entity] || []);
     });
 
     app.post(`/api/${entity}`, async (req, res) => {
@@ -302,6 +344,19 @@ async function startServer() {
       await writeDB(db);
       res.json({ success: true });
     });
+  });
+
+  // Bouquet Config
+  app.get("/api/bouquet-config", async (req, res) => {
+    const db = await readDB();
+    res.json(db.bouquetConfig || initialDB.bouquetConfig);
+  });
+
+  app.put("/api/bouquet-config", async (req, res) => {
+    const db = await readDB();
+    db.bouquetConfig = req.body;
+    await writeDB(db);
+    res.json(db.bouquetConfig);
   });
 
   // Bulk Deletion

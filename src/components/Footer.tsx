@@ -1,11 +1,13 @@
-import { motion } from "motion/react";
-import { Instagram, Facebook, Twitter, ShieldCheck, MessageCircle, Mail } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Instagram, Facebook, ShieldCheck, MessageCircle, Mail, Phone, X, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useUI } from "../context/UIContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [subscribed, setSubscribed] = useState(false);
+  const { setContactModalOpen } = useUI();
 
   return (
     <footer className="px-6 md:px-12 py-20 bg-luxury-beige border-t border-luxury-border">
@@ -41,7 +43,14 @@ export default function Footer() {
           <div>
             <h4 className="text-[12px] uppercase tracking-[0.3em] font-bold text-luxury-ink mb-6">Service Client</h4>
             <ul className="space-y-4 text-sm text-luxury-muted">
-              <li><a href="#" className="hover:text-luxury-gold transition-colors">Contact</a></li>
+              <li>
+                <button 
+                  onClick={() => setContactModalOpen(true)}
+                  className="hover:text-luxury-gold transition-colors outline-none cursor-pointer"
+                >
+                  Contact
+                </button>
+              </li>
               <li><a href="#" className="hover:text-luxury-gold transition-colors">Livraison de Luxe</a></li>
               <li><a href="#" className="hover:text-luxury-gold transition-colors">Guide d'Entretien</a></li>
               <li><a href="#" className="hover:text-luxury-gold transition-colors">FAQ</a></li>
@@ -104,11 +113,11 @@ export default function Footer() {
               <a href="https://web.facebook.com/profile.php?id=61589275109450" target="_blank" rel="noopener noreferrer" className="hover:text-luxury-gold transition-colors" title="Facebook"><Facebook size={18} strokeWidth={1.5} /></a>
               <a href="https://api.whatsapp.com/send?phone=%2B237697309441&token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyNSJ9.eyJleHAiOjE3NzgxMDcxMzYsInBob25lIjoiKzIzNzY5NzMwOTQ0MSIsImNvbnRleHQiOiJBZmlKaUlzb3pJdlpyV2ZMc0hhMU93VW9DR01FaWstWWhGZXdKQ3JaNUJhSjJrTmRXaFRWa2tibXhpTnF4Y2NpUnRyUnd3eERKejlKOXJBejhXMFcxazRrSHJqT1VQUlZ6NUJIekw2VUlOd3dNcWZtRVE5MEhPR2ZqNkliSGpsVS1sMDdlTHVZemc5OVlyZ2pHTEtDZEF4ZHNRIiwic291cmNlIjoiRkJfUGFnZSIsImFwcCI6ImZhY2Vib29rIiwiZW50cnlfcG9pbnQiOiJwYWdlX2N0YSJ9.Sv_4IiuG9INv_6LfydFac_-D0JBv8oRhPcjsHovwLASWK7E5ytmTKOSg3ZkSi-EGSdt0ADvDmVJ9THT40F-msw&fbclid=IwY2xjawRnUYhleHRuA2FlbQIxMABicmlkETF6Q0tGdWVQZVJ3MWhhZE9pc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHunszU7yTA8ttpdVaBR96b0fsGyo7wmQ_Gx4BzIcRqsLprPaFdVkbTIIMCTU_aem_z-sZ4TJdcXo8nQRD4OC4ig" target="_blank" rel="noopener noreferrer" className="hover:text-luxury-gold transition-colors" title="WhatsApp"><MessageCircle size={18} strokeWidth={1.5} /></a>
               <a href="#" className="hover:text-luxury-gold transition-colors" title="Instagram"><Instagram size={18} strokeWidth={1.5} /></a>
-              <a href="#" className="hover:text-luxury-gold transition-colors" title="Twitter"><Twitter size={18} strokeWidth={1.5} /></a>
             </div>
           </div>
         </div>
       </div>
+
     </footer>
   );
 }

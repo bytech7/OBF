@@ -9,11 +9,24 @@ async function request(endpoint: string, options: RequestInit = {}) {
   };
 
   const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+  
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(error.message || "Something went wrong");
+    let errorMessage = "Something went wrong";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      // Not JSON
+      try {
+        const text = await response.text();
+        if (text) errorMessage = text;
+      } catch (e2) {}
+    }
+    throw new Error(errorMessage);
   }
-  return response.json();
+
+  const text = await response.text();
+  return text ? JSON.parse(text) : {};
 }
 
 export const api = {
@@ -43,6 +56,12 @@ export const api = {
   createFormation: (data: any) => request("/formations", { method: "POST", body: JSON.stringify(data) }),
   updateFormation: (id: string, data: any) => request(`/formations/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteFormation: (id: string) => request(`/formations/${id}`, { method: "DELETE" }),
+  
+  // Reviews
+  getReviews: () => request("/reviews"),
+  createReview: (data: any) => request("/reviews", { method: "POST", body: JSON.stringify(data) }),
+  updateReview: (id: string, data: any) => request(`/reviews/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteReview: (id: string) => request(`/reviews/${id}`, { method: "DELETE" }),
 
   // Customers
   getCustomers: () => request("/customers"),
@@ -50,6 +69,10 @@ export const api = {
   // Quotes
   getQuotes: () => request("/quotes"),
   createQuote: (data: any) => request("/quotes", { method: "POST", body: JSON.stringify(data) }),
+
+  // Bouquet Config
+  getBouquetConfig: () => request("/bouquet-config"),
+  updateBouquetConfig: (data: any) => request("/bouquet-config", { method: "PUT", body: JSON.stringify(data) }),
 
   // Data Management
   clearEntity: (entity: string) => request(`/admin/clear/${entity}`, { method: "DELETE" }),

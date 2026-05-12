@@ -15,8 +15,10 @@ import BackButton from "./components/BackButton";
 import { useEffect } from "react";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { UIProvider } from "./context/UIContext";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import ContactModal from "./components/ContactModal";
 
 // Pages
 import Home from "./pages/Home";
@@ -24,6 +26,7 @@ import Boutique from "./pages/Boutique";
 import Collection from "./pages/Collection";
 import Services from "./pages/Services";
 import Formation from "./pages/Formation";
+import Avis from "./pages/Avis";
 import Histoire from "./pages/Histoire";
 import Devis from "./pages/Devis";
 import AdminLogin from "./pages/Admin/Login";
@@ -39,6 +42,7 @@ function AppContent() {
       <Loader />
       {!isAdminPage && <Navbar />}
       {!isAdminPage && <BackButton />}
+      <ContactModal />
       
       <div className="flex-1">
         <Routes>
@@ -47,6 +51,7 @@ function AppContent() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/services" element={<Services />} />
           <Route path="/formation" element={<Formation />} />
+          <Route path="/avis" element={<Avis />} />
           <Route path="/histoire" element={<Histoire />} />
           <Route path="/devis" element={<Devis />} />
           
@@ -73,10 +78,12 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <ScrollToTop />
-          <AppContent />
-        </Router>
+        <UIProvider>
+          <Router>
+            <ScrollToTop />
+            <AppContent />
+          </Router>
+        </UIProvider>
       </CartProvider>
     </AuthProvider>
   );

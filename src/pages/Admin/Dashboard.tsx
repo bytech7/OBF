@@ -22,11 +22,12 @@ import {
   X,
   Menu,
   Mail,
-  Phone
+  Phone,
+  Sparkles
 } from "lucide-react";
 import { api } from "../../services/api";
 
-type Tab = "overview" | "products" | "services" | "collections" | "formations" | "customers" | "reports" | "settings";
+type Tab = "overview" | "products" | "services" | "collections" | "formations" | "atelier" | "reviews" | "customers" | "reports" | "settings";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
@@ -36,8 +37,10 @@ export default function AdminDashboard() {
     services: [] as any[],
     collections: [] as any[],
     formations: [] as any[],
+    reviews: [] as any[],
     customers: [] as any[],
-    quotes: [] as any[]
+    quotes: [] as any[],
+    bouquetConfig: null as any
   });
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,15 +59,17 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [products, services, collections, formations, customers, quotes] = await Promise.all([
+      const [products, services, collections, formations, reviews, customers, quotes, config] = await Promise.all([
         api.getProducts(),
         api.getServices(),
         api.getCollections(),
         api.getFormations(),
+        api.getReviews(),
         api.getCustomers(),
-        api.getQuotes()
+        api.getQuotes(),
+        api.getBouquetConfig()
       ]);
-      setData({ products, services, collections, formations, customers, quotes });
+      setData({ products, services, collections, formations, reviews, customers, quotes, bouquetConfig: config });
     } catch (err) {
       console.error("Fetch error", err);
     } finally {
@@ -85,6 +90,7 @@ export default function AdminDashboard() {
       if (type === "services") await api.deleteService(id);
       if (type === "collections") await api.deleteCollection(id);
       if (type === "formations") await api.deleteFormation(id);
+      if (type === "reviews") await api.deleteReview(id);
       fetchData();
     } catch (err) {
       alert("Erreur lors de la suppression");
@@ -111,6 +117,9 @@ export default function AdminDashboard() {
       } else if (activeTab === "formations") {
         if (editingItem) await api.updateFormation(editingItem.id, payload);
         else await api.createFormation(payload);
+      } else if (activeTab === "reviews") {
+        if (editingItem) await api.updateReview(editingItem.id, payload);
+        else await api.createReview({ ...payload, date: new Date().toISOString().split('T')[0] });
       }
       setIsModalOpen(false);
       setEditingItem(null);
@@ -203,6 +212,8 @@ export default function AdminDashboard() {
           <SidebarItem id="services" icon={Settings} label="Services" />
           <SidebarItem id="collections" icon={Grid} label="Collections" />
           <SidebarItem id="formations" icon={GraduationCap} label="Formations" />
+          <SidebarItem id="atelier" icon={Sparkles} label="Atelier" />
+          <SidebarItem id="reviews" icon={Users} label="Avis" />
           <SidebarItem id="customers" icon={Users} label="Clients" />
           <SidebarItem id="settings" icon={Settings} label="Système" />
         </nav>
@@ -270,6 +281,8 @@ export default function AdminDashboard() {
             {activeTab === "services" && <DataTable items={data.services} onDelete={(id) => handleDelete("services", id)} onEdit={openForm} />}
             {activeTab === "collections" && <DataTable items={data.collections} onDelete={(id) => handleDelete("collections", id)} onEdit={openForm} />}
             {activeTab === "formations" && <DataTable items={data.formations} onDelete={(id) => handleDelete("formations", id)} onEdit={openForm} />}
+            {activeTab === "reviews" && <DataTable items={data.reviews.map(r => ({ ...r, name: r.customerName, description: r.comment, details: `Note: ${r.rating}/5` }))} onDelete={(id) => handleDelete("reviews", id)} onEdit={openForm} />}
+            {activeTab === "atelier" && <AtelierManagement config={data.bouquetConfig} fetchData={fetchData} />}
             {activeTab === "customers" && <CustomerTable items={data.customers} />}
             {activeTab === "settings" && <DataManagement fetchData={fetchData} />}
           </div>
@@ -299,25 +312,41 @@ export default function AdminDashboard() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="col-span-2">
-                     <label className="block text-sm font-medium mb-1">Titre / Nom</label>
+                     <label className="block text-sm font-medium mb-1">
+                       {activeTab === "reviews" ? "Nom du client" : "Titre / Nom"}
+                     </label>
                      <input 
                        id="form-title"
                        type="text" 
-                       value={formData.name || formData.title || ""} 
-                       onChange={(e) => setFormData({...formData, name: e.target.value, title: e.target.value})} 
+                       value={formData.name || formData.title || formData.customerName || ""} 
+                       onChange={(e) => setFormData({...formData, name: e.target.value, title: e.target.value, customerName: e.target.value})} 
                        className="w-full px-4 py-2 border rounded-lg"
                        required
                      />
                    </div>
                    <div className="col-span-2">
-                     <label className="block text-sm font-medium mb-1">Description</label>
+                     <label className="block text-sm font-medium mb-1">
+                       {activeTab === "reviews" ? "Commentaire" : "Description"}
+                     </label>
                      <textarea 
                        id="form-desc"
-                       value={formData.description || ""} 
-                       onChange={(e) => setFormData({...formData, description: e.target.value})} 
+                       value={formData.description || formData.comment || ""} 
+                       onChange={(e) => setFormData({...formData, description: e.target.value, comment: e.target.value})} 
                        className="w-full px-4 py-2 border rounded-lg h-24"
                      />
                    </div>
+                   {activeTab === "reviews" && (
+                     <div>
+                       <label className="block text-sm font-medium mb-1">Note /5</label>
+                       <select 
+                         value={formData.rating || 5} 
+                         onChange={(e) => setFormData({...formData, rating: Number(e.target.value)})}
+                         className="w-full px-4 py-2 border rounded-lg"
+                       >
+                         {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} / 5</option>)}
+                       </select>
+                     </div>
+                   )}
                    {(activeTab === "products" || activeTab === "formations") && (
                      <div>
                        <label className="block text-sm font-medium mb-1">Prix (CFA)</label>
@@ -1016,6 +1045,208 @@ function DataManagement({ fetchData }: { fetchData: () => void }) {
               Tout réinitialiser
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AtelierManagement({ config, fetchData }: { config: any; fetchData: () => void }) {
+  const [localConfig, setLocalConfig] = useState(config || { pricingType: "fixed", price: 137000, steps: [] });
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (config) {
+      // Ensure options are in the new object format if they are strings
+      const sanitizedSteps = config.steps.map((step: any) => ({
+        ...step,
+        options: step.options.map((opt: any) => typeof opt === 'string' ? { name: opt, price: 0 } : opt)
+      }));
+      setLocalConfig({ ...config, steps: sanitizedSteps });
+    }
+  }, [config]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await api.updateBouquetConfig(localConfig);
+      alert("Configuration de l'atelier mise à jour.");
+      fetchData();
+    } catch (err) {
+      alert("Erreur lors de la mise à jour.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const addStep = () => {
+    const newSteps = [...localConfig.steps, { id: localConfig.steps.length + 1, name: "Nouvelle Étape", options: [{ name: "Option 1", price: 0 }] }];
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const removeStep = (idx: number) => {
+    const newSteps = localConfig.steps.filter((_: any, i: number) => i !== idx).map((s: any, i: number) => ({ ...s, id: i + 1 }));
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const updateStepName = (idx: number, name: string) => {
+    const newSteps = [...localConfig.steps];
+    newSteps[idx].name = name;
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const addOption = (stepIdx: number) => {
+    const newSteps = [...localConfig.steps];
+    newSteps[stepIdx].options.push({ name: "Nouvelle Option", price: 0 });
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const removeOption = (stepIdx: number, optIdx: number) => {
+    const newSteps = [...localConfig.steps];
+    newSteps[stepIdx].options = newSteps[stepIdx].options.filter((_: any, i: number) => i !== optIdx);
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const updateOptionName = (stepIdx: number, optIdx: number, name: string) => {
+    const newSteps = [...localConfig.steps];
+    newSteps[stepIdx].options[optIdx].name = name;
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  const updateOptionPrice = (stepIdx: number, optIdx: number, price: number) => {
+    const newSteps = [...localConfig.steps];
+    newSteps[stepIdx].options[optIdx].price = price;
+    setLocalConfig({ ...localConfig, steps: newSteps });
+  };
+
+  if (!localConfig) return <div className="text-luxury-muted italic">Chargement...</div>;
+
+  return (
+    <div className="space-y-8">
+      <div className="bg-white p-8 rounded-2xl border border-luxury-border/30 shadow-sm">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-xl font-serif text-luxury-ink mb-1">Configuration de l'Atelier</h3>
+            <p className="text-luxury-muted text-sm italic">Gérez les étapes et options de la composition personnalisée.</p>
+          </div>
+          <button 
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-6 py-2 bg-luxury-gold text-white text-[11px] uppercase tracking-widest font-bold rounded-full shadow-lg shadow-luxury-gold/20 hover:scale-105 transition-transform"
+          >
+            {isSaving ? "Enregistrement..." : "Sauvegarder"}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="p-6 bg-gray-50 rounded-xl border border-luxury-border/20">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-luxury-ink mb-3 block">Type de Tarification</label>
+            <div className="flex bg-white border border-luxury-border/30 p-1 rounded-lg">
+              <button 
+                onClick={() => setLocalConfig({...localConfig, pricingType: 'fixed'})}
+                className={`flex-1 py-2 text-[10px] uppercase tracking-widest font-bold rounded ${localConfig.pricingType === 'fixed' ? 'bg-luxury-ink text-white' : 'text-luxury-muted'}`}
+              >
+                Prix Fixe
+              </button>
+              <button 
+                onClick={() => setLocalConfig({...localConfig, pricingType: 'variable'})}
+                className={`flex-1 py-2 text-[10px] uppercase tracking-widest font-bold rounded ${localConfig.pricingType === 'variable' ? 'bg-luxury-ink text-white' : 'text-luxury-muted'}`}
+              >
+                Prix Variable
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6 bg-gray-50 rounded-xl border border-luxury-border/20">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-luxury-ink mb-3 block">
+              {localConfig.pricingType === 'fixed' ? "Prix Unique de la Création" : "Prix de Base (FCFA)"}
+            </label>
+            <input 
+              type="number"
+              value={localConfig.price}
+              onChange={(e) => setLocalConfig({...localConfig, price: parseInt(e.target.value) || 0})}
+              className="w-full bg-white border border-luxury-border/30 p-3 rounded-lg focus:outline-none focus:border-luxury-gold"
+            />
+            {localConfig.pricingType === 'variable' && (
+              <p className="text-[10px] text-luxury-muted mt-2 italic">Ce prix s'ajoutera aux options des étapes 1 et 2.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {localConfig.steps.map((step: any, sIdx: number) => (
+            <div key={sIdx} className="p-6 border border-luxury-border/30 rounded-xl bg-white relative group">
+              <button 
+                onClick={() => removeStep(sIdx)}
+                className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+              >
+                <Trash2 size={18} />
+              </button>
+              
+              <div className="mb-6">
+                <label className="text-[10px] uppercase tracking-widest font-bold text-luxury-muted mb-2 block">Nom de l'étape {sIdx + 1}</label>
+                <input 
+                  type="text"
+                  value={step.name}
+                  onChange={(e) => updateStepName(sIdx, e.target.value)}
+                  className="text-lg font-serif text-luxury-ink bg-transparent border-b border-luxury-border focus:border-luxury-gold outline-none pb-1 w-full max-w-md"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-luxury-muted mb-4 block">
+                  Options disponibles {(localConfig.pricingType === 'variable' && sIdx < 2) ? "(avec prix additionnel)" : ""}
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                  {step.options.map((opt: any, oIdx: number) => (
+                    <div key={oIdx} className="flex flex-col gap-2 p-3 bg-gray-50 border border-luxury-border/20 rounded-lg group/opt relative">
+                      <div className="flex gap-2">
+                        <input 
+                          type="text"
+                          value={opt.name}
+                          onChange={(e) => updateOptionName(sIdx, oIdx, e.target.value)}
+                          placeholder="Nom de l'option"
+                          className="flex-1 text-xs p-2 bg-white border border-luxury-border/30 rounded focus:border-luxury-gold outline-none"
+                        />
+                        <button 
+                          onClick={() => removeOption(sIdx, oIdx)}
+                          className="text-red-300 hover:text-red-500 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                      
+                      {localConfig.pricingType === "variable" && sIdx < 2 && (
+                        <div className="flex items-center gap-2">
+                          <label className="text-[9px] uppercase font-bold text-luxury-muted shrink-0">Prix supp. +</label>
+                          <input 
+                            type="number"
+                            value={opt.price || 0}
+                            onChange={(e) => updateOptionPrice(sIdx, oIdx, parseInt(e.target.value) || 0)}
+                            className="w-24 text-xs p-1 bg-white border border-luxury-border/30 rounded focus:border-luxury-gold outline-none"
+                          />
+                          <span className="text-[10px] text-luxury-muted">FCFA</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    onClick={() => addOption(sIdx)}
+                    className="flex items-center justify-center gap-2 py-4 border border-dashed border-luxury-border/50 text-[10px] uppercase tracking-widest text-luxury-muted hover:text-luxury-gold hover:border-luxury-gold transition-all rounded-lg"
+                  >
+                    <Plus size={14} /> Ajouter Option
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <button 
+            onClick={addStep}
+            className="w-full py-4 border-2 border-dashed border-luxury-border/30 text-luxury-muted hover:text-luxury-gold hover:border-luxury-gold transition-all rounded-xl flex items-center justify-center gap-3 uppercase text-[11px] tracking-[0.2em] font-bold"
+          >
+            <Plus size={18} /> Ajouter une Étape au Voyage Sensoriel
+          </button>
         </div>
       </div>
     </div>

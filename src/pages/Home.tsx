@@ -1,4 +1,5 @@
 import Hero from "../components/Hero";
+import ReviewsSection from "../components/ReviewsSection";
 import { motion } from "motion/react";
 
 export default function Home() {
@@ -22,6 +23,7 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      <ReviewsSection />
     </>
   );
 }

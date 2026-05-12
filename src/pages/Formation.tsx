@@ -61,7 +61,7 @@ export default function Formation() {
               transition={{ delay: 0.3 }}
               className="text-sm sm:text-lg text-luxury-muted font-light italic leading-relaxed mb-10"
             >
-              Découvrez les secrets de nos maîtres fleuristes lors de nos ateliers intensifs. Apprenez à composer avec l'âme des fleurs, de la sélection des tiges à l'harmonie des couleurs.
+              Découvrez les secrets de nos maîtres fleuristes lors de nos ateliers intensifs. Apprenez à composer avec l'âme des fleurs, de la sélection des tiges à l'harmonie des couleurs. Toutes nos formations sont sanctionnées par une attestation de fin de formation.
             </motion.p>
           </div>
 
@@ -79,6 +79,7 @@ export default function Formation() {
                 </div>
                 <div className="p-8 flex flex-col flex-1">
                   <h3 className="text-xl font-serif text-luxury-ink mb-2">{f.title}</h3>
+                  <p className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold mb-3">Attestation incluse</p>
                   <p className="text-sm text-luxury-muted mb-6 flex-1">{f.description}</p>
                   <div className="flex items-center justify-between mt-auto">
                     <span className="text-luxury-gold font-bold">{f.price} CFA</span>

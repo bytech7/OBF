@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ShoppingBag, Menu, X, Trash2, Plus, Minus, User as UserIcon, LogOut, CheckCircle2, Search } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useUI } from "../context/UIContext";
 import { Link, NavLink } from "react-router-dom";
 import { generateInvoicePDF } from "../utils/invoiceGenerator";
 import SearchOverlay from "./SearchOverlay";
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const { cart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal } = useCart();
   const { user, login, register, logout, isAuthModalOpen, setAuthModalOpen } = useAuth();
+  const { setContactModalOpen } = useUI();
   const [isLoginView, setIsLoginView] = useState(true);
   const [emailInput, setEmailInput] = useState("");
   const [registerData, setRegisterData] = useState({
@@ -56,6 +58,7 @@ export default function Navbar() {
     { name: "Collection", href: "/collection" },
     { name: "Services", href: "/services" },
     { name: "Formation", href: "/formation" },
+    { name: "Avis", href: "/avis" },
     { name: "Histoire", href: "/histoire" },
   ];
 
@@ -165,11 +168,23 @@ export default function Navbar() {
               Formation
             </NavLink>
             <NavLink
+              to="/avis"
+              className={({ isActive }) => `text-[10px] xxl:text-[11px] uppercase tracking-[0.15em] xxl:tracking-[0.2em] font-semibold transition-colors ${isActive ? 'text-luxury-gold' : 'text-luxury-ink/80 hover:text-luxury-gold'}`}
+            >
+              Avis
+            </NavLink>
+            <NavLink
               to="/histoire"
               className={({ isActive }) => `text-[10px] xxl:text-[11px] uppercase tracking-[0.15em] xxl:tracking-[0.2em] font-semibold transition-colors ${isActive ? 'text-luxury-gold' : 'text-luxury-ink/80 hover:text-luxury-gold'}`}
             >
               Histoire
             </NavLink>
+            <button 
+              onClick={() => setContactModalOpen(true)}
+              className="text-[10px] xxl:text-[11px] uppercase tracking-[0.15em] xxl:tracking-[0.2em] font-semibold text-luxury-ink/80 hover:text-luxury-gold transition-colors"
+            >
+              Contact
+            </button>
             <div className="flex items-center gap-3 xxl:gap-6">
               {user ? (
                 <div className="group relative">
@@ -256,6 +271,12 @@ export default function Navbar() {
                   {link.name}
                 </NavLink>
               ))}
+              <button 
+                onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }}
+                className="text-4xl font-serif tracking-tight text-luxury-ink hover:text-luxury-gold text-left transition-colors"
+              >
+                Contact
+              </button>
               {!user ? (
                 <button 
                   onClick={() => { setMobileMenuOpen(false); setAuthModalOpen(true); }}
